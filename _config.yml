@@ -116,7 +116,7 @@ theme: hexo-theme-matery
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: https://github.com/cchenjc/cchenjc.github.io
-  branch: [master]
-  message: [deploy article]
-  token:
+  repo: https://github.com/cchenjc/cchenjc.github.io.git
+  branch: master
+  message: deploy article
+  token: f21cb7ed2a15fac651aa43f36cb07e3dbb5eb944
