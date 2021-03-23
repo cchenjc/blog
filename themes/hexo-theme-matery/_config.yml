@@ -22,6 +22,21 @@ menu:
   Friends:
     url: /friends
     icon: fas fa-address-book
+  Medias:
+    icon: fas fa-list
+    children:
+      - name: Music
+        url: /music
+        icon: fas fa-music
+      - name: Movies
+        url: /movies
+        icon: fas fa-film
+      - name: Books
+        url: /books
+        icon: fas fa-book
+      - name: Galleries
+        url: /galleries
+        icon: fas fa-image
   # 二级菜单写法如下
   #Medias:
   #  icon: fas fa-list
@@ -192,7 +207,7 @@ postInfo:
   update: false # 更新日期
   wordCount: true # 文章字数统计
   totalCount: false # 站点总文章字数
-  min2read: false # 文章阅读时长
+  min2read: true # 文章阅读时长
   readCount: true # 文章阅读次数
 
 # Whether to activate the 'love' effect of clicking on the page.
@@ -581,7 +596,7 @@ instantpage:
 # banner 是否每日切换.
 # 若为 false, 则 banner 默认为 /medias/banner/0.jpg
 banner:
-  enable: true
+  enable: false
 
 #ICP备案信息尾部显示
 icp:

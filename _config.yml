@@ -4,7 +4,7 @@
 
 # Site
 title: 陈城的QQ空间
-subtitle: 这里是个副标题
+subtitle: 副标题AAAAAAAAAAAAA
 description: description
 keywords:
 author: chengchen
@@ -115,4 +115,8 @@ theme: hexo-theme-matery
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
-  type: ''
+  type: git
+  repo: https://github.com/cchenjc/cchenjc.github.io
+  branch: [master]
+  message: [deploy article]
+  token:
