@@ -19,6 +19,9 @@ menu:
   Contact:
     url: /contact
     icon: fas fa-comments
+  Talk:
+    url: /bb
+    icon: fas fa-comment-dots
   Friends:
     url: /friends
     icon: fas fa-address-book
@@ -318,14 +321,14 @@ livere:
 # Valine 评论模块的配置，默认为不激活，如要使用，就请激活该配置项，并设置 appId 和 appKey.
 valine:
   enable: true
-  appId: JBGr8v8tpWFNAkDqxM9Pna5G-gzGzoHsz
-  appKey: 6j7XyHzkMLxP35lCyKSAcArm
+  appId: 6DY0nrcimmbhyu3diu4p2AGA-MdYXbMMI
+  appKey: fIzkXC1KdACq94zGkoQ9OHsv
   notify: false
   verify: false
   visitor: true
   avatar: 'mm' # Gravatar style : mm/identicon/monsterid/wavatar/retro/hide
   pageSize: 10
-  placeholder: 'just go go' # Comment Box placeholder
+  placeholder: '聊个5毛钱的吧' # Comment Box placeholder
   background: /medias/comment_bg.png
 
 # The configuration of the MiniValine comment module is not activated by default.
@@ -599,7 +602,7 @@ icp:
 # 更多关于访问速度优化，请查看：https://blog.sky03.cn/posts/42790.html
 # 注：jsdelivr可以自动帮你生成.min版的js和css，所以你在上面设置js及css路径中可以直接写.min.xxx
 jsDelivr:
-  url: # https://cdn.jsdelivr.net/gh/skyls03/skyls03.github.io
+  url: # https://cdn.jsdelivr.net/gh/cchenjc/cchenjc.github.io.git
   
 # 网站背景图
 background:
@@ -624,10 +627,11 @@ artitalk:
 # layout: bb
 # ---
 # 里面的文字可以自己随意加，会显示在哔哔的上方。
-# 关注公众号 "黑石哔哔"，发送: //bindCurrentUser:你的APPID,你的MASTERKEY,你的RESTAPI
+# 关注公众号 "黑石哔哔"，发送: //bindCurrentUser:你的APPID JBGr8v8tpWFNAkDqxM9Pna5G-gzGzoHsz,你的MASTERKEY TBD5X25YRGdHObp5gftmgXzt ,你的RESTAPI
 # 可用leancloud国际版，国际版api为 https://appid前八位.api.lncldglobal.com
 bbtime:
- enable: false
- appId: # 你的appId
- appKey: # 你的appKey
- serverURLs: # https://你的api
+ enable: true
+ appId: 6DY0nrcimmbhyu3diu4p2AGA-MdYXbMMI # 你的appId
+ appKey: fIzkXC1KdACq94zGkoQ9OHsv # 你的appKey
+ serverURLs: https://6DY0nrci.api.lncldglobal.com
+#//bindCurrentUser:6DY0nrcimmbhyu3diu4p2AGA-MdYXbMMI,Wrn73i1YuDbuuThJKqxY2UTu,https://6DY0nrci.api.lncldglobal.com
