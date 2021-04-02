@@ -578,14 +578,14 @@ header .go-back i {
     line-height: 1.2em;
     margin-bottom: 20px;
     position: relative;
-    color: #454da5;
+    color: #fff;
 }
 /* 首页副标题颜色 */
 .bg-cover .description {
     font-weight: 300;
     font-size: 1.25rem;
     line-height: 1.4em;
-    color: #454da5;
+    color: #fff;
 }
 
 .bg-cover .post-title {
