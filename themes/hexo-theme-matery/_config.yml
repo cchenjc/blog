@@ -19,9 +19,9 @@ menu:
   Contact:
     url: /contact
     icon: fas fa-comments
-  Talk:
-    url: /bb
-    icon: fas fa-comment-dots
+#  Talk:
+#    url: /bb
+#    icon: fas fa-comment-dots
   Friends:
     url: /friends
     icon: fas fa-address-book
@@ -91,7 +91,7 @@ music:
   preload: 'auto'   # 预加载，可选值: 'none', 'metadata', 'auto'
   volume: 0.7       # 默认音量，请注意播放器会记忆用户设置，用户手动设置音量后默认音量即失效
   listFolded: true  # 列表默认折叠
-  hideLrc: true     # 隐藏歌词
+  hideLrc: false     # 隐藏歌词
 
 # Whether to display the videos.
 # 是否在首页显示视频.
@@ -208,7 +208,7 @@ clicklove:
 profile:
   avatar: /medias/avatar.jpg
   career: Java程序猿
-  introduction: 以前我一直以为没有什么事情是解决不了的，现在，我承认很多事情没有由来，没法解决。
+  introduction: 人要成长，必有原因，背后的努力与积累一定数倍于普通人。所以，关键还在于自己。不同程度的放纵，必积下不同程度的顽劣；不同程度的锻炼，必取得不同程度的成绩。
 
 # config my projects informations in about page.
 # If you don't want to display this `My Projects` content, you can deactivate or delete this configuration.
