@@ -2,12 +2,12 @@
 title: Hello World
 date: 2021-03-07 09:25:00
 author: 陈城
-top: true
-cover: true
+top: false
+cover: false
 toc: false
 mathjax: false
 summary: 这是你自定义的文章摘要内容，如果这个属性有值，文章卡片摘要就显示这段文字，否则程序会自动截取文章的部分内容作为摘要
-categories: Markdown
+categories: 示例文章
 tags:
   - Typora
   - Markdown

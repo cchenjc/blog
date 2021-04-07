@@ -7,10 +7,10 @@ cover: true
 coverImg: /medias/banner/6.jpg
 toc: false
 mathjax: false
-summary: 锁无非就是不同线程对同一个共有资源的竞争占有，本文从jvm源码的角度来解析synchronized是如何在多线程竞争的情况下操作对象的markWord。加锁解锁及其锁膨胀过程，以及JDK1.8如何优化synchronized，synchronized的优缺点，和实现AQS框架锁的共同点和区别
-categories: Java
+summary: 锁无非就是不同线程对同一个共有资源的竞争占有，本文从jvm源码的角度来解析synchronized是如何在多线程竞争的情况下操作对象的markWord。加锁解锁及其锁膨胀过程，以及JDK1.8如何优化synchronized以及与实现AQS框架锁的共同点和区别
+categories: Java Core
 tags:
-    - Java
+    - 源码
     - JUC
 ---
 
