@@ -8,7 +8,7 @@ coverImg: /medias/banner/0-3.jpg
 toc: false
 mathjax: false
 summary: 图文并茂的形式以方法为维度深入剖析ConcurrentHashMap源码，对数据寻址、并发扩容、数据迁移、链表树化和反树化、put()、get()、remove()方法进行源码级别的解读
-categories: Java Core
+categories: Java
 tags:
     - 源码
     - JUC
