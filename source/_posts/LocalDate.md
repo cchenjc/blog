@@ -64,6 +64,8 @@ tags:
 
 ### 2.3 LocalDate、LocalDateTime、Instant、Duration以及Period
 
+<img src="https://cdn.jsdelivr.net/gh/cchenjc/image/LocalDateTime%E7%BB%A7%E6%89%BF%E7%B1%BB%E5%9B%BE.png" alt="LocalDateTime继承类图" />
+
 #### 2.3.1使用LocalDate和LocalTime
 
 使用新日期和时间API我们时，最先碰到的可能事`LocalDate`类。该类实例是一个不可变对象，它只提供简单的日期，并不含当天的时间信息。另外它也不含当天的时间信息。另外，它也不附带任何与时区相关的信息。
@@ -352,7 +354,7 @@ String format1 = date1.format(twFormatter);//2021 七月 25
 
 ```
 
-目前为止，你已经学习了如何创建、操纵、格式化以及解析时间点和时间段，但是你还不了解如何处理日期和时间之间的微妙关系。比如你可能需要处理不同时区，或者由于不同历法系统带来的差异，接下来我们再探究如果使用新的日期和时间API解决这些问题。
+目前为止，你已经学习了如何创建、操纵、格式化以及解析时间点和时间段，但是你还不了解如何处理日期和时间之间的微妙关系。比如你可能需要处理不同时区，或者由于不同历法系统带来的差异，接下来我们再探究如何使用新的日期和时间API解决这些问题。
 
 ### 2.5 处理不同的时区和历法
 
@@ -442,7 +444,208 @@ ChronoLocalDate chronoLocalDate = chronology.dateNow();
 
 ## 三、英灵殿（踩坑记）
 
-### 3.1 SpringMVC中时间类型的转换和序列化问题
+### SpringMVC中时间类型的转换和序列化问题
 
-### 3.2 FastJson配置全局LocalDateTime序列化
+**痛点**
+
+在使用Spring MVC进行开发时我们经常遇到前端传来的某种格式的时间字符串无法用java8时间包下的具体类型参数来直接接收。同时还有一系列的序列化 、反序列化问题，在返回前端带时间类型的同样会出现一些格式化的问题。今天我们来彻底解决他们。
+
+**建议**
+
+其实最科学的建议统一使用时间戳来代表时间。这个是最完美的，避免了前端浏览器的兼容性问题，同时也避免了其它一些中间件的序列化/反序列化问题。但是用时间表达可能更清晰语义化。两种方式各有千秋，如果我们坚持使用java8的时间类库也不是没有办法。下面我们会以`java.time.LocalDateTime` 为例逐一解决这些问题。
+
+### 3.1 默认局部注解序列化
+
+在默认的情况下 SpringMVC的序列化是基于Jackson处理的，这个时候我们如果不进行特殊配置的话进行序列化需要在参数上加上注解的处理
+
+- 第一种请求参数是RequestParam的情况需要加上`@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")`注解代码如下：
+
+  ```java
+  @RequestMapping("/testParam")
+  public Result<String> testParamToLocalDate(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime dateTime) {
+      log.info("日期:{} 时间:{}", dateTime.toLocalDate(), dateTime.toLocalTime());
+      return Result.success();
+  }
+  ```
+
+- 第二种情况是POST请求参数在body中，需要反序列化成对象。默认是jackson类库来进行反序列化，并不触发`@DateTimeFormat`注解机制。需要同时加上`@DateTimeFormat`和`@JsonFormat`注解入参的对象为：
+
+  ```java
+  @Getter
+  @Setter
+  public class LocalDateTimeIn {
+  
+      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+      @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+      private LocalDateTime dateTime;
+  }
+  
+  
+  @RequestMapping("/testBody")
+  public Result<LocalDateTimeOut2> testBodyToLocalDate(@RequestBody LocalDateTimeIn dateTimeIn) {
+      LocalDateTime dateTime = dateTimeIn.getDateTime();
+      log.info("日期:{} 时间:{}", dateTime.toLocalDate(), dateTime.toLocalTime());
+      return Result.success(LocalDateTimeOut2.builder().dateTime(dateTime).build());
+  }
+  
+  ```
+
+  以上两个注解可以并存，但是一定要清楚各自的使用场景。这里还有一个小细节：格式一定要对应好时间类型。比如`yyyy-MM-dd` 对应`java.time.LocalDate` 。如果再个性化一些`@JsonFormat` 可以被`@JsonDeserialize`和`@JsonSerialize` 代替。但是它们的`using`参数需要你自己实现为你对应的时间类型类型。如果`@JsonFormat`、`@JsonDeserialize`和`@JsonSerialize`同时存在`@JsonFormat`的优先级要更高。
+
+### 3.2 Jackson配置全局LocalDateTime序列化
+
+如果我们不需要特殊的格式可以在全局设置，在Spring默认序列化器jackson的全局配置如下：
+
+```java
+private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy MM-dd-HH:mm:ss", Locale.CHINA);
+    
+private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.CHINA);
+```
+
+
+
+```java
+@Bean
+public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
+    //反序列化
+    Map<Class<?>, JsonDeserializer<?>> deserializerMap = new HashMap<>();
+    deserializerMap.put(LocalDateTime.class, new LocalDateTimeDeserializer(DATE_TIME_FORMATTER));
+    deserializerMap.put(LocalDate.class, new LocalDateDeserializer(DATE_FORMATTER));
+    //序列化
+    Map<Class<?>, JsonSerializer<?>> serializerMap = new HashMap<>();
+    serializerMap.put(LocalDateTime.class, new LocalDateTimeSerializer(DATE_TIME_FORMATTER));
+    serializerMap.put(LocalDate.class, new LocalDateSerializer(DATE_FORMATTER));
+    
+    return jacksonObjectMapperBuilder -> jacksonObjectMapperBuilder
+        .deserializersByType(deserializerMap)
+        .serializersByType(serializerMap);
+}
+```
+
+
+### 3.3 FastJson配置全局LocalDateTime序列化
+
+使用fastJson的配置可以对返回结果进行特殊处理
+
+```java
+@Configuration
+public class FastJsonMvcConfig implements WebMvcConfigurer {
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        FastJsonConfig fastJsonConfig = new FastJsonConfig();
+        fastJsonConfig.setSerializerFeatures(
+                SerializerFeature.PrettyFormat,
+                SerializerFeature.WriteMapNullValue,
+                SerializerFeature.DisableCircularReferenceDetect
+        );
+        fastJsonConfig.setDateFormat("yyyy-MM-dd HH:mm:ss");
+        fastJsonConfig.setCharset(StandardCharsets.UTF_8);
+        SerializeConfig serializeConfig = SerializeConfig.globalInstance;
+        serializeConfig.put(BigInteger.class, ToStringSerializer.instance);
+        serializeConfig.put(Long.class, ToStringSerializer.instance);
+        serializeConfig.put(Long.TYPE, ToStringSerializer.instance);
+        fastJsonConfig.setSerializeConfig(serializeConfig);
+
+
+        FastJsonHttpMessageConverter fastJsonHttpMessageConverter = new FastJsonHttpMessageConverter();
+        fastJsonHttpMessageConverter.setFastJsonConfig(fastJsonConfig);
+        converters.add(0, fastJsonHttpMessageConverter);
+    }
+}
+```
+
+### 3.4 请求示例：
+
+入参对象：
+
+```java
+@Getter
+@Setter
+public class LocalDateTimeIn2 {
+
+    private LocalDateTime dateTime;
+
+    private LocalDate date;
+}
+```
+
+请求方法
+
+```java
+@RequestMapping("/testBody2")
+public Result<LocalDateTimeOut> testGlobalBodyToLocalDate(@RequestBody LocalDateTimeIn2 dateTimeIn) {
+        LocalDateTime dateTime = dateTimeIn.getDateTime();
+        LocalDate date = dateTimeIn.getDate();
+        log.info("date:{} 日期:{} 时间:{}",date, dateTime.toLocalDate(), dateTime.toLocalTime());
+        return Result.success(LocalDateTimeOut.builder().dateTime(dateTime).build());
+}
+```
+
+返回对象：
+
+```java
+@Getter
+@Setter
+@NoArgsConstructor
+public class LocalDateTimeOut {
+
+    private LocalDateTime dateTime;
+
+
+    LocalDateTimeOut(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public static LocalDateTimeOutBuilder builder() {
+        return new LocalDateTimeOutBuilder();
+    }
+
+
+    public static class LocalDateTimeOutBuilder {
+        private LocalDateTime dateTime;
+
+        LocalDateTimeOutBuilder() {
+        }
+
+        public LocalDateTimeOutBuilder dateTime(LocalDateTime dateTime) {
+            this.dateTime = dateTime;
+            return this;
+        }
+
+        public LocalDateTimeOut build() {
+            return new LocalDateTimeOut(dateTime);
+        }
+
+        public String toString() {
+            return "LocalDateTimeOut.LocalDateTimeOutBuilder(dateTime=" + this.dateTime + ")";
+        }
+    }
+}
+```
+
+测试请求：
+
+```http
+###
+POST http://localhost:8080/demo/testBody2
+Content-Type: application/json
+
+{
+  "dateTime": "2021-08-02 11:15:43",
+  "date": "2021-08-10"
+}
+
+### 返回结果
+{
+	"code": 200,
+	"msg": "success",
+	"data": {
+		"dateTime": "2021-08-02 11:15:43"
+	}
+}
+```
+
+### **全局配置的要点**
+
+全局配置的一些优缺点上面已经阐述了，这里我还是要啰嗦一下要点避免你踩坑。**全局配置跟局部配置一样。同样要约定pattern。这就要求我们全局保持一致**，**如果同时存在局部配置和全局配置框架会以局部配置优先处理**。我们可以实现多个以上的全局配置来对其他诸如`LocalDate`、`OffsetDateTime` 的适配。同时如果我们接入了其它一些需要用到序列化/反序列化的中间件，比如redis、rabbitmq，我们也要注意进行适配。
 
