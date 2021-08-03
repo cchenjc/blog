@@ -1,6 +1,11 @@
 ---
 title: LocalDate、LocalDateTime、LocalTime相关类使用指南
 date: 2021-07-31 13:10:52
+author: 陈城
+top: true
+cover: true
+toc: true
+summary: 由于JDK1.8之前的时间相关处理类设计的不合理及不易用，jdk的大佬们在吸收了jodaTime 等优秀的时间框架设计理念,在Java8中提出了关于时间新的使用姿势。使用Java8新的时间特性会让你像从eclipse换到IntellJ IDEA那样丝滑顺畅。
 categories: Java
 tags:
   - API
@@ -62,7 +67,7 @@ tags:
 | 2019-06-10T11:51:48.872                      | 不含时区信息的时间                                           |
 | 2019-06-10T11:55:04.421+08:00[Asia/Shanghai] | 包含时区信息的时间，+08:00 表示相对于0时区加 8 小时，[Asia/Shanghai]：时区 |
 
-### 2.3 LocalDate、LocalDateTime、Instant、Duration以及Period
+### 2.3 LocalDate、LocalDateTime、Instant、Duration以及Period[^1]
 
 <img src="https://cdn.jsdelivr.net/gh/cchenjc/image/LocalDateTime%E7%BB%A7%E6%89%BF%E7%B1%BB%E5%9B%BE.png" alt="LocalDateTime继承类图" />
 
@@ -522,10 +527,11 @@ public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomiz
 }
 ```
 
+Jackson的全局配置和注解配置同时存在的情况下，序列化会以注解格式为准，这样可以做到全局统一，局部特殊灵活配置。
 
 ### 3.3 FastJson配置全局LocalDateTime序列化
 
-使用fastJson的配置可以对返回结果进行特殊处理
+使用fastJson的配置可以对返回结果进行特殊处理，对入参不能进行控制，入参的格式只能为`yyyy-MM-dd HH:mm:ss`、`yyyy/MM/dd HH:mm:ss`或者为标准时间格式`yyyy/MM/ddTHH:mm:ss`
 
 ```java
 @Configuration
@@ -554,7 +560,11 @@ public class FastJsonMvcConfig implements WebMvcConfigurer {
 }
 ```
 
-### 3.4 请求示例：
+在fastJson和jackson同时存在的情况下，jackson的配置会失效也就是说`@DateTimeFormat`和`@JsonFormat`注解会不起作用，序列化和反序列化都会以fastJson配置为准
+
+### 3.4 请求示例
+
+------
 
 入参对象：
 
@@ -569,6 +579,19 @@ public class LocalDateTimeIn2 {
 }
 ```
 
+返回对象：
+
+```java
+@Getter
+@Setter
+@Builder
+public class LocalDateTimeOut {
+
+    private LocalDateTime dateTime;
+
+}
+```
+
 请求方法
 
 ```java
@@ -578,48 +601,6 @@ public Result<LocalDateTimeOut> testGlobalBodyToLocalDate(@RequestBody LocalDate
         LocalDate date = dateTimeIn.getDate();
         log.info("date:{} 日期:{} 时间:{}",date, dateTime.toLocalDate(), dateTime.toLocalTime());
         return Result.success(LocalDateTimeOut.builder().dateTime(dateTime).build());
-}
-```
-
-返回对象：
-
-```java
-@Getter
-@Setter
-@NoArgsConstructor
-public class LocalDateTimeOut {
-
-    private LocalDateTime dateTime;
-
-
-    LocalDateTimeOut(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
-    }
-
-    public static LocalDateTimeOutBuilder builder() {
-        return new LocalDateTimeOutBuilder();
-    }
-
-
-    public static class LocalDateTimeOutBuilder {
-        private LocalDateTime dateTime;
-
-        LocalDateTimeOutBuilder() {
-        }
-
-        public LocalDateTimeOutBuilder dateTime(LocalDateTime dateTime) {
-            this.dateTime = dateTime;
-            return this;
-        }
-
-        public LocalDateTimeOut build() {
-            return new LocalDateTimeOut(dateTime);
-        }
-
-        public String toString() {
-            return "LocalDateTimeOut.LocalDateTimeOutBuilder(dateTime=" + this.dateTime + ")";
-        }
-    }
 }
 ```
 
@@ -648,4 +629,15 @@ Content-Type: application/json
 ### **全局配置的要点**
 
 全局配置的一些优缺点上面已经阐述了，这里我还是要啰嗦一下要点避免你踩坑。**全局配置跟局部配置一样。同样要约定pattern。这就要求我们全局保持一致**，**如果同时存在局部配置和全局配置框架会以局部配置优先处理**。我们可以实现多个以上的全局配置来对其他诸如`LocalDate`、`OffsetDateTime` 的适配。同时如果我们接入了其它一些需要用到序列化/反序列化的中间件，比如redis、rabbitmq，我们也要注意进行适配。
+
+[^1]: 本文正文部分引用《Java8实战》原文
+
+[2]: https://bbs.huaweicloud.com/blogs/196941	"序列化配置参考文章"
+[3]: http://www.mydlq.club/article/87/	"推荐示例参考文章"
+
+
+
+
+
+
 
